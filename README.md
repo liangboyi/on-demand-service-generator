@@ -41,27 +41,37 @@ cd redis/local-test/service-adapter-test
 
 
 # 4. Create your service-adapter release
+1.Download go pkg [go1.8.3linux-amd64.tar.gz](https://redirector.gvt1.com/edgedl/go/go1.8.3.linux-amd64.tar.gz)
+Other go pkg [downloads](https://golang.org/dl/)
+```
+cp go1.8.3.linux-amd64.tar.gz redis/redis-service-adapter-release/src/golang/
+```
+2.Copy the redis-service-adapter code to the release src folder
 ```
 cd redis
 cp -r redis-service-adapter/* redis-service-adapter-release/src/redis-service-adapter
 ```
+3.upload service-adapter release
+```
+cd redis-service-adapter-release
+./update-release.sh
+```
 # 5.upload service-on-demand-broker-sdk-release
 1 Download [on-demand-services-sdk 0.18.0](https://network.pivotal.io/products/on-demand-services-sdk#/releases/8516)
+
 2 Upload release
 ```
 bosh -e vbox upload-release on-demand-service-broker-0.18.0.tgz 
 ```
+# 6.Here is my bosh releases
 ```bash
 ➜  redis git:(master) ✗ bosh -e vbox releases
 Using environment '192.168.50.6' as client 'admin'
 
 Name                           Version             Commit Hash
-kafka-example-service          0+dev.3*            non-git
-kafka-example-service-adapter  0.15.0-rc-1+dev.1*  b01dea5
-learn-bosh                     0+dev.2*            8ecf7b4+
 on-demand-service-broker       0.18.0-alpha-1*     1322b05
 redis                          0+dev.1*            non-git
-self-service-adapter           0+dev.4*            non-git
+redis-service-adapter          0+dev.4*            non-git
 ~                              0+dev.3             non-git
 ~                              0+dev.2*            non-git
 ~                              0+dev.1             non-git
@@ -69,10 +79,18 @@ self-service-adapter           0+dev.4*            non-git
 (*) Currently deployed
 (+) Uncommitted changes
 
-9 releases
+6 releases
 
 Succeeded
-➜  redis git:(master) ✗
+```
+# 7.Deploy
+```
+cd redis/redis-on-demand-broker
+cd manifests
+# create your own deployment file
+vim bosh-lite-manifest.yml
+cd ..
+./deploy.sh
 ```
 
 
