@@ -1,0 +1,33 @@
+name: redis-deployment
+releases:
+  - name: &release_name redis
+    version: latest
+
+stemcells:
+- alias: trusty
+  os: ubuntu-trusty
+  version: latest
+
+instance_groups:
+- name: redis-instance
+  instances: 2
+  jobs:
+  - name: redis
+    release: *release_name
+    properties:
+      redis:
+        port: 6379
+        config_command: 1
+  vm_type: medium
+  persistent_disk_type: ten
+  stemcell: trusty
+  networks:
+  - name: &network_name kafka
+  azs:
+  - z1
+
+update:
+  canaries: 1
+  max_in_flight: 10
+  canary_watch_time: 1000-30000
+  update_watch_time: 1000-30000
