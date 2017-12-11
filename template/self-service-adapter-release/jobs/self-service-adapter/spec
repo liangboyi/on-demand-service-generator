@@ -1,0 +1,9 @@
+---
+name: self-service-adapter
+
+packages:
+  - self-service-adapter
+
+templates: {}
+
+properties: {}

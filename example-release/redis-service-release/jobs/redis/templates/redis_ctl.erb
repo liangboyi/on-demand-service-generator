@@ -1,0 +1,31 @@
+#!/bin/bash -e
+LOG_DIR=/var/vcap/sys/log/redis/
+PIDFILE=/var/vcap/sys/run/redis/redis.pid
+RUN_DIR=/var/vcap/sys/run/redis
+JOB_DIR=/var/vcap/jobs/redis
+STORE_DIR=/var/vcap/store/redis
+PACKAGE_DIR=/var/vcap/packages/redis
+
+source /var/vcap/packages/common/utils.sh
+
+case $1 in
+
+  start)
+
+    mkdir -p $LOG_DIR $RUN_DIR $STORE_DIR
+    chown vcap:vcap $LOG_DIR $RUN_DIR $STORE_DIR
+    $JOB_DIR/bin/create-cluster >> $LOG_DIR/cluster.stdout.log 2>> $LOG_DIR/cluster.stderr.log  &
+    exec chpst -u vcap:vcap $PACKAGE_DIR/redis-server $JOB_DIR/config/redis.conf \
+      >>$LOG_DIR/redis.start.stdout.log 2>>$LOG_DIR/redis.start.stderr.log
+
+    ;;
+
+  stop)
+    kill_and_wait $PIDFILE 55
+    ;;
+
+  *)
+    echo "Usage: redis_ctl {start|stop}"
+    ;;
+
+esac

@@ -1,0 +1,9 @@
+#!/bin/bash
+export PATH=/var/vcap/packages/ruby/bin:$PATH
+JOB_FOLDER=/var/vcap/jobs/redis
+PACKAGE_FOLDER=/var/vcap/packages/redis
+gem install --local $PACKAGE_FOLDER/redis-3.2.1.gem
+INSTANCES=`sed '/^ *$/d;s/^\s*//'  $JOB_FOLDER/config/instances`
+echo "$INSTANCES"|xargs -i $JOB_FOLDER/bin/check-instance {}
+CLUSTERS=`echo "$INSTANCES"|awk '{print $1":<%=p("redis.port")%> "}'`
+$PACKAGE_FOLDER/redis-trib.rb  create --replicas 1 $CLUSTERS <<< "yes"

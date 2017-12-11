@@ -1,0 +1,180 @@
+name: redis-on-demand-broker
+
+releases:
+  - name: &broker-release on-demand-service-broker
+    version: latest
+  - name: &service-adapter-release self-service-adapter
+    version: latest
+  - name: &redis-service-release redis
+    version: latest
+
+stemcells:
+  - alias: trusty
+    os: ubuntu-trusty
+    version: 3468
+
+instance_groups:
+  - name: broker
+    instances: 1
+    jobs:
+      - name: broker
+        release: *broker-release
+        properties:
+          port: 8080
+          username: broker #or replace with your own
+          password: password #or replace with your own
+          disable_ssl_cert_verification: &disable_ssl_cert_verification TRUE # optional
+          bosh:
+            url: https://192.168.50.6:25555
+            authentication: # either basic or uaa, not both as shown
+              basic:
+                username: admin #or replace with your own
+                password: 9ddhya5ngar3kpm22rf6 #or replace with your own
+          cf:
+            url: https://api.local.pcfdev.io
+            authentication:
+              url: https://uaa.local.pcfdev.io
+              user_credentials:
+                username: admin
+                password: admin
+          service_adapter:
+            path: "/var/vcap/packages/self-service-adapter/bin/service-adapter"
+          service_deployment:
+            releases:
+              - name: *redis-service-release
+                version: 0+dev.1
+                jobs: [redis]
+            stemcell:
+              os: ubuntu-trusty
+              version: 3468
+          service_catalog:
+            id: 5BAADEED-A14C-4FA5-BC02-D905C04289E8 #create this yourself, can be human readable
+            service_name: redis-service-with-odb
+            service_description: Redis Service
+            bindable: true
+            plan_updatable: true
+            tags: [redis]
+            plans:
+              - name: small
+                plan_id: 81C0C4A5-C647-4962-8348-BC0F18471799 # create this yourself, can be human readable
+                description: A Redis deployment with a single instance of each job and persistent disk
+                instance_groups:
+                  - name: redis-instance
+                    vm_type: medium
+                    instances: 1
+                    networks: [kafka] #from your cloud config
+                    azs: [z1] #from your cloud config
+                    persistent_disk_type: ten #from your cloud config
+                properties:
+                  redis:
+                    config_command: 234
+                    port: 6379
+              - name: medium
+                plan_id: E1F2F14F-3A26-40BF-A601-D6B73864AA65 # create this yourself, can be human readable
+                description: A Redis deployment with two instances of each job and persistent disk
+                instance_groups:
+                  - name: redis-instance
+                    vm_type: medium
+                    instances: 2
+                    networks: [kafka] #from your cloud config
+                    azs: [z1] #from your cloud config
+                    persistent_disk_type: ten #from your cloud config
+                properties:
+                  redis:
+                    config_command: 234
+                    port: 6379
+              - name: large
+                plan_id: 069AB99C-D71B-4B5B-B918-7234AC174B35 # create this yourself, can be human readable
+                description: A Redis deployment with three instances of each job and persistent disk
+                instance_groups:
+                  - name: redis-instance
+                    vm_type: medium
+                    instances: 3
+                    networks: [kafka] #from your cloud config
+                    azs: [z1] #from your cloud config
+                    persistent_disk_type: ten #from your cloud config
+                properties:
+                  redis:
+                    config_command: 234
+                    port: 6379
+
+      - name: self-service-adapter
+        release: *service-adapter-release
+
+    vm_type: medium
+    stemcell: trusty
+    azs: [z1]
+    networks: [{name: kafka}] #from your cloud config
+
+  - name: register-broker
+    lifecycle: errand
+    instances: 1
+    jobs:
+      - name: register-broker
+        release: *broker-release
+        properties:
+          broker_name: &broker_name redis-service-with-odb
+          disable_ssl_cert_verification: *disable_ssl_cert_verification
+          cf: &cf
+            api_url: https://api.local.pcfdev.io
+            admin_username: admin
+            admin_password: admin
+    vm_type: medium
+    stemcell: trusty
+    networks: [{name: kafka}] #from your cloud config
+    azs: [z1]
+
+  - name: deregister-broker
+    lifecycle: errand
+    instances: 1
+    jobs:
+      - name: deregister-broker
+        release: *broker-release
+        properties:
+          broker_name: *broker_name
+          disable_ssl_cert_verification: *disable_ssl_cert_verification
+          cf:
+            <<: *cf
+    vm_type: medium
+    stemcell: trusty
+    networks: [{name: kafka}]
+    azs: [z1]
+
+  - name: delete-all-service-instances
+    lifecycle: errand
+    instances: 1
+    jobs:
+      - name: delete-all-service-instances
+        release: *broker-release
+    vm_type: medium
+    stemcell: trusty
+    networks: [{name: kafka}]
+    azs: [z1]
+
+  - name: upgrade-all-service-instances
+    lifecycle: errand
+    instances: 1
+    jobs:
+      - name: upgrade-all-service-instances
+        release: *broker-release
+    vm_type: medium
+    stemcell: trusty
+    networks: [{name: kafka}]
+    azs: [z1]
+
+  - name: orphan-deployments
+    lifecycle: errand
+    instances: 1
+    jobs:
+      - name: orphan-deployments
+        release: *broker-release
+    vm_type: medium
+    stemcell: trusty
+    networks: [{name: kafka}]
+    azs: [z1]
+
+update:
+  canaries: 1
+  canary_watch_time: 3000-180000
+  update_watch_time: 3000-180000
+  max_in_flight: 4

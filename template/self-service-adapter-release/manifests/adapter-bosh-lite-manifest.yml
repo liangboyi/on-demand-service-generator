@@ -1,0 +1,29 @@
+name: self-service-adapter
+
+releases:
+  - name: &service-adapter-release self-service-adapter
+    version: latest
+
+stemcells:
+  - alias: trusty
+    os: ubuntu-trusty
+    version: 3468
+
+instance_groups:
+  - name: adapter
+    instances: 1
+    jobs:
+      - name: self-service-adapter
+        release: *service-adapter-release
+        properties:
+          port: 8080
+    vm_type: medium
+    stemcell: trusty
+    azs: [z1]
+    networks: [{name: kafka}] #from your cloud config
+
+update:
+  canaries: 1
+  canary_watch_time: 3000-180000
+  update_watch_time: 3000-180000
+  max_in_flight: 4

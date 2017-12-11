@@ -1,0 +1,15 @@
+#!/bin/bash -x
+HOST=$1
+
+echo "lalla,try to connect:: "$1
+while true
+do 
+  RESPONSE=`/var/vcap/packages/redis/redis-cli -h $HOST -p <%=p("redis.port")%> ping`
+  if [ "PONG" == "$RESPONSE" ]
+  then
+    break;
+  fi
+  sleep 10
+done
+
+

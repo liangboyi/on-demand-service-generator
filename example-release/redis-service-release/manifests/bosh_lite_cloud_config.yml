@@ -1,0 +1,24 @@
+vm_types:
+- name: medium
+  cloud_properties:
+    ram: 128
+disk_types:
+- name: ten
+  disk_size: 3000
+  cloud_properties: {}
+
+networks:
+- name: redis-network
+  subnets:
+  - cloud_properties:
+      name: random
+    range: 10.244.11.0/24
+    reserved:
+    - 10.244.11.1
+
+compilation:
+  cloud_properties:
+    name: random
+  network: redis-network
+  reuse_compilation_vms: true
+  workers: 1

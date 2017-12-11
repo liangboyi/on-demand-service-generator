@@ -1,0 +1,25 @@
+name: redis
+version: 0+dev.1
+commit_hash: non-git
+uncommitted_changes: false
+jobs:
+- name: redis
+  version: badee3c1dc116bda452362c7c4dcbe2b49dc6cf6
+  fingerprint: badee3c1dc116bda452362c7c4dcbe2b49dc6cf6
+  sha1: d531266159c712f4407c50c0e1ccdabbdead5a9c
+packages:
+- name: common
+  version: e4e29be5ced37fdba84f32a31b16513d92f39e1d
+  fingerprint: e4e29be5ced37fdba84f32a31b16513d92f39e1d
+  sha1: 6f13592cc85990ce9fec0e91c2b370612a12a94e
+  dependencies: []
+- name: redis
+  version: 70a66c6ca3a2936ef6e1e866f4783197e2b831ed
+  fingerprint: 70a66c6ca3a2936ef6e1e866f4783197e2b831ed
+  sha1: cbfe4ab37b76a3bce5108c4ff7f9822fd35570ec
+  dependencies: []
+- name: ruby
+  version: a6391e756508b995e98e6b6e24cccedc4b3ead8b
+  fingerprint: a6391e756508b995e98e6b6e24cccedc4b3ead8b
+  sha1: 12b1ee94bbb38d2ff65690d84adf2632fd615989
+  dependencies: []

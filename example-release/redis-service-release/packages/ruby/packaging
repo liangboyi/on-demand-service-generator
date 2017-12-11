@@ -1,0 +1,27 @@
+set -e
+cp -a ruby/bundler-1.3.5.gem ${BOSH_INSTALL_TARGET}
+set -e
+tar -xvf ruby/ruby-2.0.0-p481.tar.gz
+(
+  set -e
+  cd ruby-2.0.0-p481
+  ./configure --prefix=${BOSH_INSTALL_TARGET}
+  make
+  make install
+)
+set -e
+tar -xvf ruby/rubygems-2.1.11.tgz
+(
+  set -e
+  cd rubygems-2.1.11
+  ${BOSH_INSTALL_TARGET}/bin/ruby setup.rb
+)
+set -e
+tar -xvf ruby/yaml-0.1.5.tar.gz
+(
+  set -e
+  cd yaml-0.1.5
+  ./configure --prefix=${BOSH_INSTALL_TARGET}
+  make
+  make install
+)

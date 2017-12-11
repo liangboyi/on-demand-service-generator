@@ -1,0 +1,5 @@
+name: self-service-adapter
+blobstore:
+  provider: local
+  options:
+    blobstore_path: "/tmp/blobs"

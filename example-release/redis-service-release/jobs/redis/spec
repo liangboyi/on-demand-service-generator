@@ -1,0 +1,31 @@
+---
+name: redis
+
+templates:
+  check-instance.erb: bin/check-instance
+  create-cluster.erb: bin/create-cluster
+  instances.erb: config/instances
+  redis.conf.erb: config/redis.conf
+  redis_ctl.erb: bin/redis_ctl
+
+packages:
+- common
+- redis
+- ruby
+
+provides:
+- name: peers
+  type: peers_type
+
+consumes:
+- name: peers
+  type: peers_type
+
+properties:
+  redis.port:
+    default: 1
+    description: redis.port
+
+  redis.config_command:
+    default: 1
+    description: redis.config_command

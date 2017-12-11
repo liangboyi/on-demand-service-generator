@@ -1,0 +1,2 @@
+set -e
+cp -a common/utils.sh ${BOSH_INSTALL_TARGET}

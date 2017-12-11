@@ -1,0 +1,6 @@
+---
+name: self-service-adapter
+dependencies: 
+- golang
+files:
+- self-service-adapter/**/*

@@ -1,0 +1,66 @@
+<%
+  max_memory = 128 * 1024 * 1024
+  if spec.resource_pool.instance_variable_defined?(:@cloud_properties) && spec.resource_pool.cloud_properties.ram
+    # This property only exists on vSphere
+    ram_mb = spec.resource_pool.cloud_properties.ram
+    ram = ram_mb * 1024 * 1024
+    # It is recommended to use 45% of memory
+    # when enabling snapshots
+    max_memory = (ram * 0.45).floor
+  end
+%>
+daemonize yes
+cluster-enabled yes
+cluster-config-file /var/vcap/store/redis/cluster.conf
+cluster-node-timeout 5000
+pidfile   /var/vcap/sys/run/redis/redis.pid
+dir /var/vcap/store/redis/
+logfile /var/vcap/sys/log/redis/redis.log
+port <%=p("redis.port")%>
+timeout 0
+tcp-keepalive 0
+loglevel notice
+syslog-enabled yes
+syslog-ident redis-server
+syslog-facility local0
+databases 16
+save 900 1
+save 300 10
+save 60 10000
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+dbfilename dump.rdb
+slave-serve-stale-data yes
+slave-read-only yes
+repl-disable-tcp-nodelay no
+slave-priority 100
+maxmemory <%= max_memory %>
+maxmemory-policy noeviction
+appendonly yes
+appendfilename appendonly.aof
+appendfsync everysec
+no-appendfsync-on-rewrite no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+lua-time-limit 5000
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+hash-max-ziplist-entries 512
+hash-max-ziplist-value 64
+list-max-ziplist-entries 512
+list-max-ziplist-value 64
+set-max-intset-entries 512
+zset-max-ziplist-entries 128
+zset-max-ziplist-value 64
+activerehashing yes
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit slave 256mb 64mb 60
+client-output-buffer-limit pubsub 32mb 8mb 60
+hz 10
+aof-rewrite-incremental-fsync yes
+rename-command CONFIG "<%= p('redis.config_command') %>"
+rename-command DEBUG ""
+rename-command SHUTDOWN ""
+rename-command SLAVEOF ""
+rename-command SYNC ""
